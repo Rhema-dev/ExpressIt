@@ -169,6 +169,52 @@
       "template": "var n = nearestKey(time).index;\nif (key(n).time > time) n--;\nvar result = value;\nif (n > 0) {\n  var t = time - key(n).time;\n  var v = velocityAtTime(key(n).time - thisComp.frameDuration / 10);\n  var factor = {{amount}} * Math.sin(t * {{frequency}} * Math.PI * 2) / Math.exp({{decay}} * t);\n  if (typeof value === \"number\") result = value + v * factor;\n  else { result = []; for (var i = 0; i < value.length; i++) result[i] = value[i] + v[i] * factor; }\n}\nresult;"
     },
     {
+      "id": "core.bounce",
+      "version": 1,
+      "source": "core",
+      "name": "Bounce",
+      "description": "Add a damped bounce after each keyframe. Floor keeps the bounce on one side of the keyed value.",
+      "category": "Motion",
+      "tags": ["overshoot", "spring", "elastic", "inertia"],
+      "compatibility": {},
+      "parameters": [
+        {
+          "key": "amplitude",
+          "label": "Amplitude",
+          "type": "number",
+          "default": 50,
+          "min": 0,
+          "max": 1000,
+          "step": 1
+        },
+        {
+          "key": "frequency",
+          "label": "Frequency",
+          "type": "number",
+          "default": 3,
+          "min": 0.1,
+          "max": 20,
+          "step": 0.1
+        },
+        {
+          "key": "decay",
+          "label": "Decay",
+          "type": "number",
+          "default": 5,
+          "min": 0.1,
+          "max": 30,
+          "step": 0.1
+        },
+        {
+          "key": "floor",
+          "label": "Floor",
+          "type": "boolean",
+          "default": false
+        }
+      ],
+      "template": "var result = value;\ntry {\n  var amp = {{amplitude}} / 1000;\n  var freq = {{frequency}};\n  var decay = {{decay}};\n  var floor = {{floor}};\n  var n = 0;\n  if (numKeys > 0) {\n    n = nearestKey(time).index;\n    if (key(n).time > time) n--;\n  }\n  if (n > 0) {\n    var t = time - key(n).time;\n    var v = velocityAtTime(key(n).time - thisComp.frameDuration / 10);\n    var wave = Math.sin(freq * t * 2 * Math.PI);\n    if (floor) wave = -Math.abs(wave);\n    var factor = amp * wave / Math.exp(decay * t);\n    if (typeof value === \"number\") {\n      result = value + v * factor;\n    } else if (value && typeof value.length === \"number\") {\n      result = [];\n      for (var i = 0; i < value.length; i++) result[i] = value[i] + v[i] * factor;\n    }\n  }\n} catch (err) {\n  result = value;\n}\nresult;"
+    },
+    {
       "id": "core.loop-out",
       "version": 1,
       "source": "core",

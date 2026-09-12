@@ -6,7 +6,7 @@ Find an expression, adjust its controls, and inject it into one selected propert
 
 ## What ships in v1
 
-- 22 core expressions across Motion, Loop, Text, Opacity, and Timing.
+- 23 core expressions across Motion, Loop, Text, Opacity, and Timing.
 - Search across names, descriptions, categories, and tags.
 - All, Core, Mine, and Favorites views, plus category and compatibility filters.
 - Number, text, boolean, and select parameter controls with live code preview.
@@ -121,7 +121,7 @@ Set the `CI` environment variable to `1` when running `npm run test:ui` to selec
 6. Click **Apply**.
 7. Scrub the timeline. Use **Edit → Undo** / Ctrl+Z / Cmd+Z to undo.
 
-An incompatible property disables injection and shows the reason. Loop expressions and Inertial Overshoot require at least two keyframes. Source Text, property groups, separated position dimensions, and other value types are checked explicitly rather than guessed from display names.
+An incompatible property disables injection and shows the reason. Loop expressions and Inertial Overshoot require at least two keyframes. Bounce can be applied to any expression-capable property and takes effect once it has usable keyframe velocity. Source Text, property groups, separated position dimensions, and other value types are checked explicitly rather than guessed from display names.
 
 If the property already has code, a dialog shows both the old code and the proposed replacement. Changing the AE selection or its expression while the dialog is open invalidates the request. Review the new selection and try again.
 

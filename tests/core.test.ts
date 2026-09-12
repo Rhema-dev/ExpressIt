@@ -45,12 +45,26 @@ const pack = (expressions: ExpressItExpression[]) =>
     exportedAt: new Date().toISOString(),
     expressions,
   });
-test('22 bundled expressions validate and compile to syntactically valid JavaScript', () => {
-  assert.equal(core.length, 22);
+test('23 bundled expressions validate and compile to syntactically valid JavaScript', () => {
+  assert.equal(core.length, 23);
   for (const e of core) {
     assert.ok(compileExpression(e).trim());
     new vm.Script(compileExpression(e));
   }
+});
+test('Bounce is property-agnostic and compiles its four controls', () => {
+  const bounce = core.find((e) => e.id === 'core.bounce')!;
+  assert.deepEqual(bounce.compatibility, {});
+  const code = compileExpression(bounce, {
+    amplitude: 80,
+    frequency: 4,
+    decay: 6,
+    floor: true,
+  });
+  assert.match(code, /var amp = 80 \/ 1000;/);
+  assert.match(code, /var freq = 4;/);
+  assert.match(code, /var decay = 6;/);
+  assert.match(code, /var floor = true;/);
 });
 test('compiler applies overrides without mutating library data', () => {
   assert.equal(compileExpression(wiggle, { frequency: 3, amount: 25 }), 'wiggle(3, 25);');
@@ -134,7 +148,7 @@ test('compatibility checks both constraints, expression support and keyframes', 
 });
 test('search matches all query terms across metadata', () => {
   assert.equal(searchExpressions(core, 'camera random')[0].id, 'core.wiggle');
-  assert.equal(searchExpressions(core, '  ').length, 22);
+  assert.equal(searchExpressions(core, '  ').length, 23);
 });
 test('pack conflicts skip, replace stable IDs and keep both uniquely', () => {
   const imported = { ...user, id: 'user.other', template: 'value;' };

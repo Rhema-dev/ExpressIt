@@ -63,7 +63,7 @@ test('pack review runs no code; import conflicts and export roundtrip', async ({
     });
   await upload();
   await expect(page.getByRole('dialog')).toContainText('executable After Effects expression code');
-  await expect(page.locator('.expression-row')).toHaveCount(22);
+  await expect(page.locator('.expression-row')).toHaveCount(23);
   await page.getByRole('button', { name: 'Import pack', exact: true }).click();
   await expect(page.locator('.detail h2')).toHaveText('Pack item');
   await upload();
@@ -89,7 +89,7 @@ test('corrupt library is preserved and blocks writes while core stays usable', a
   expect(await page.evaluate(() => localStorage.getItem('expressit.preview.library.json'))).toBe(
     'corrupt data',
   );
-  await expect(page.locator('.expression-row')).toHaveCount(22);
+  await expect(page.locator('.expression-row')).toHaveCount(23);
 });
 test('layout fits a 300px dock and dialog keyboard close restores focus', async ({ page }) => {
   await page.setViewportSize({ width: 300, height: 650 });
