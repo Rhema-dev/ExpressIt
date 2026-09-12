@@ -1,0 +1,43 @@
+{
+  "name": "expressit",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "node --import ./tests/register.mjs --test tests/*.test.ts",
+    "test:ui": "node scripts/test-ui.mjs",
+    "check": "npm run lint && npm test && npm run build",
+    "build:watch": "vite build --watch",
+    "package": "npm run check && node scripts/package.mjs",
+    "test:ae:prepare": "node --import ./tests/register.mjs scripts/ae-smoke.mjs",
+    "format": "prettier --write --no-error-on-unmatched-pattern src tests scripts vite.config.ts playwright.config.ts index.html public/data/expressions-core.json README.md BUILD_TUTORIAL.md INTERVIEW_PREP.md"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.6",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.69.0",
+    "vite": "^8.3.0"
+  },
+  "description": "A local expression library for Adobe After Effects",
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

@@ -1,0 +1,626 @@
+{
+  "schemaVersion": 1,
+  "expressions": [
+    {
+      "id": "core.wiggle",
+      "version": 1,
+      "source": "core",
+      "name": "Wiggle",
+      "description": "Smooth, organic randomness for handheld movement and subtle shake.",
+      "category": "Motion",
+      "tags": ["random", "shake", "camera"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL"]
+      },
+      "parameters": [
+        {
+          "key": "frequency",
+          "label": "Frequency / sec",
+          "type": "number",
+          "default": 2,
+          "min": 0,
+          "max": 30,
+          "step": 0.1
+        },
+        {
+          "key": "amount",
+          "label": "Amount",
+          "type": "number",
+          "default": 50,
+          "min": 0,
+          "max": 2000,
+          "step": 1
+        }
+      ],
+      "template": "wiggle({{frequency}}, {{amount}});"
+    },
+    {
+      "id": "core.drift",
+      "version": 1,
+      "source": "core",
+      "name": "Drift",
+      "description": "Move steadily from the original value, starting at the layer’s in point.",
+      "category": "Motion",
+      "tags": ["linear", "camera", "move"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL"]
+      },
+      "parameters": [
+        {
+          "key": "speed",
+          "label": "Units / sec",
+          "type": "number",
+          "default": 20,
+          "min": -2000,
+          "max": 2000,
+          "step": 1
+        }
+      ],
+      "template": "var offset = Math.max(0, time - inPoint) * {{speed}};\nif (typeof value === \"number\") { value + offset; } else {\n  var result = []; for (var i = 0; i < value.length; i++) result[i] = value[i] + offset;\n  result;\n}"
+    },
+    {
+      "id": "core.float",
+      "version": 1,
+      "source": "core",
+      "name": "Float",
+      "description": "Add a smooth sine-wave offset to every component.",
+      "category": "Motion",
+      "tags": ["sine", "hover", "wave"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL"]
+      },
+      "parameters": [
+        {
+          "key": "amount",
+          "label": "Amplitude",
+          "type": "number",
+          "default": 20,
+          "min": 0,
+          "max": 2000,
+          "step": 1
+        },
+        {
+          "key": "frequency",
+          "label": "Cycles / sec",
+          "type": "number",
+          "default": 0.5,
+          "min": 0,
+          "max": 30,
+          "step": 0.1
+        }
+      ],
+      "template": "var offset = Math.sin((time - inPoint) * Math.PI * 2 * {{frequency}}) * {{amount}};\nif (typeof value === \"number\") { value + offset; } else {\n  var result = []; for (var i = 0; i < value.length; i++) result[i] = value[i] + offset;\n  result;\n}"
+    },
+    {
+      "id": "core.orbit",
+      "version": 1,
+      "source": "core",
+      "name": "Orbit",
+      "description": "Circle around the original position in the XY plane. Keeps Z unchanged.",
+      "category": "Motion",
+      "tags": ["circle", "position", "orbital"],
+      "compatibility": {
+        "valueTypes": ["TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL"],
+        "matchNames": ["ADBE Position"]
+      },
+      "parameters": [
+        {
+          "key": "radius",
+          "label": "Radius / px",
+          "type": "number",
+          "default": 80,
+          "min": 0,
+          "max": 5000,
+          "step": 1
+        },
+        {
+          "key": "speed",
+          "label": "Cycles / sec",
+          "type": "number",
+          "default": 0.25,
+          "min": -10,
+          "max": 10,
+          "step": 0.05
+        }
+      ],
+      "template": "var angle = (time - inPoint) * Math.PI * 2 * {{speed}};\nvar x = value[0] + Math.cos(angle) * {{radius}};\nvar y = value[1] + Math.sin(angle) * {{radius}};\nvalue.length === 3 ? [x, y, value[2]] : [x, y];"
+    },
+    {
+      "id": "core.overshoot",
+      "version": 1,
+      "source": "core",
+      "name": "Inertial Overshoot",
+      "description": "Carry incoming keyframe velocity into a damped oscillation after each key.",
+      "category": "Motion",
+      "tags": ["bounce", "spring", "inertia"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL"],
+        "minKeys": 2
+      },
+      "parameters": [
+        {
+          "key": "amount",
+          "label": "Strength",
+          "type": "number",
+          "default": 0.05,
+          "min": 0,
+          "max": 1,
+          "step": 0.01
+        },
+        {
+          "key": "frequency",
+          "label": "Frequency",
+          "type": "number",
+          "default": 3,
+          "min": 0.1,
+          "max": 20,
+          "step": 0.1
+        },
+        {
+          "key": "decay",
+          "label": "Decay",
+          "type": "number",
+          "default": 5,
+          "min": 0.1,
+          "max": 30,
+          "step": 0.1
+        }
+      ],
+      "template": "var n = nearestKey(time).index;\nif (key(n).time > time) n--;\nvar result = value;\nif (n > 0) {\n  var t = time - key(n).time;\n  var v = velocityAtTime(key(n).time - thisComp.frameDuration / 10);\n  var factor = {{amount}} * Math.sin(t * {{frequency}} * Math.PI * 2) / Math.exp({{decay}} * t);\n  if (typeof value === \"number\") result = value + v * factor;\n  else { result = []; for (var i = 0; i < value.length; i++) result[i] = value[i] + v[i] * factor; }\n}\nresult;"
+    },
+    {
+      "id": "core.loop-out",
+      "version": 1,
+      "source": "core",
+      "name": "Loop Out",
+      "description": "Repeat your keyframe animation after its last key.",
+      "category": "Loop",
+      "tags": ["repeat", "keyframes", "cycle"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL", "COLOR"],
+        "minKeys": 2
+      },
+      "parameters": [],
+      "template": "loopOut(\"cycle\");"
+    },
+    {
+      "id": "core.ping-pong",
+      "version": 1,
+      "source": "core",
+      "name": "Ping Pong",
+      "description": "Play existing keyframes forward, then backward.",
+      "category": "Loop",
+      "tags": ["repeat", "keyframes", "pingpong"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL", "COLOR"],
+        "minKeys": 2
+      },
+      "parameters": [],
+      "template": "loopOut(\"pingpong\");"
+    },
+    {
+      "id": "core.loop-offset",
+      "version": 1,
+      "source": "core",
+      "name": "Loop Offset",
+      "description": "Repeat keyframes while accumulating the change each cycle.",
+      "category": "Loop",
+      "tags": ["repeat", "keyframes", "offset"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL", "COLOR"],
+        "minKeys": 2
+      },
+      "parameters": [],
+      "template": "loopOut(\"offset\");"
+    },
+    {
+      "id": "core.loop-continue",
+      "version": 1,
+      "source": "core",
+      "name": "Continue",
+      "description": "Continue with the velocity of the final keyframe.",
+      "category": "Loop",
+      "tags": ["repeat", "keyframes", "continue"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL", "COLOR"],
+        "minKeys": 2
+      },
+      "parameters": [],
+      "template": "loopOut(\"continue\");"
+    },
+    {
+      "id": "core.loop-in",
+      "version": 1,
+      "source": "core",
+      "name": "Loop In",
+      "description": "Repeat keyframe animation before its first key.",
+      "category": "Loop",
+      "tags": ["cycle", "repeat", "before"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL", "COLOR"],
+        "minKeys": 2
+      },
+      "parameters": [],
+      "template": "loopIn(\"cycle\");"
+    },
+    {
+      "id": "core.auto-fade",
+      "version": 1,
+      "source": "core",
+      "name": "Auto Fade",
+      "description": "Fade at the layer’s in and out points. Short layers use half their duration.",
+      "category": "Opacity",
+      "tags": ["in", "out", "transition"],
+      "compatibility": {
+        "matchNames": ["ADBE Opacity"],
+        "valueTypes": ["OneD"]
+      },
+      "parameters": [
+        {
+          "key": "duration",
+          "label": "Fade duration / sec",
+          "type": "number",
+          "default": 0.5,
+          "min": 0.01,
+          "max": 30,
+          "step": 0.05
+        }
+      ],
+      "template": "var d = Math.min({{duration}}, Math.max(thisComp.frameDuration, (outPoint - inPoint) / 2));\nvar a = linear(time, inPoint, inPoint + d, 0, 1);\nvar b = linear(time, outPoint - d, outPoint, 1, 0);\nvalue * Math.min(a, b);"
+    },
+    {
+      "id": "core.flicker",
+      "version": 1,
+      "source": "core",
+      "name": "Flicker",
+      "description": "Seeded random opacity sampled at a chosen frame rate.",
+      "category": "Opacity",
+      "tags": ["random", "light", "strobe"],
+      "compatibility": {
+        "matchNames": ["ADBE Opacity"],
+        "valueTypes": ["OneD"]
+      },
+      "parameters": [
+        {
+          "key": "fps",
+          "label": "Samples / sec",
+          "type": "number",
+          "default": 8,
+          "min": 1,
+          "max": 60,
+          "step": 1
+        },
+        {
+          "key": "minimum",
+          "label": "Minimum / %",
+          "type": "number",
+          "default": 20,
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "key": "seed",
+          "label": "Seed",
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 99999,
+          "step": 1
+        }
+      ],
+      "template": "posterizeTime({{fps}});\nseedRandom({{seed}} + Math.floor((time - inPoint) * {{fps}}), true);\nrandom({{minimum}}, 100);"
+    },
+    {
+      "id": "core.blink",
+      "version": 1,
+      "source": "core",
+      "name": "Blink",
+      "description": "Switch opacity on and off with a predictable duty cycle.",
+      "category": "Opacity",
+      "tags": ["flash", "strobe", "visibility"],
+      "compatibility": {
+        "matchNames": ["ADBE Opacity"],
+        "valueTypes": ["OneD"]
+      },
+      "parameters": [
+        {
+          "key": "frequency",
+          "label": "Cycles / sec",
+          "type": "number",
+          "default": 2,
+          "min": 0.1,
+          "max": 30,
+          "step": 0.1
+        },
+        {
+          "key": "duty",
+          "label": "Visible portion",
+          "type": "number",
+          "default": 0.5,
+          "min": 0.01,
+          "max": 0.99,
+          "step": 0.01
+        }
+      ],
+      "template": "var phase = ((time - inPoint) * {{frequency}} % 1 + 1) % 1;\nphase < {{duty}} ? value : 0;"
+    },
+    {
+      "id": "core.pulse",
+      "version": 1,
+      "source": "core",
+      "name": "Pulse",
+      "description": "Breathe in and out around the original layer scale.",
+      "category": "Motion",
+      "tags": ["scale", "breathing", "size"],
+      "compatibility": {
+        "matchNames": ["ADBE Scale"],
+        "valueTypes": ["TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL"]
+      },
+      "parameters": [
+        {
+          "key": "amount",
+          "label": "Amplitude / %",
+          "type": "number",
+          "default": 10,
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "key": "frequency",
+          "label": "Cycles / sec",
+          "type": "number",
+          "default": 0.5,
+          "min": 0,
+          "max": 20,
+          "step": 0.1
+        }
+      ],
+      "template": "var factor = 1 + Math.sin((time - inPoint) * Math.PI * 2 * {{frequency}}) * {{amount}} / 100;\nvar result = []; for (var i = 0; i < value.length; i++) result[i] = value[i] * factor;\nresult;"
+    },
+    {
+      "id": "core.rotation",
+      "version": 1,
+      "source": "core",
+      "name": "Continuous Rotation",
+      "description": "Spin continuously from the layer’s original rotation.",
+      "category": "Motion",
+      "tags": ["spin", "angle", "rotate"],
+      "compatibility": {
+        "matchNames": ["ADBE Rotate Z", "ADBE Rotate X", "ADBE Rotate Y"],
+        "valueTypes": ["OneD"]
+      },
+      "parameters": [
+        {
+          "key": "speed",
+          "label": "Degrees / sec",
+          "type": "number",
+          "default": 45,
+          "min": -3600,
+          "max": 3600,
+          "step": 1
+        }
+      ],
+      "template": "value + (time - inPoint) * {{speed}};"
+    },
+    {
+      "id": "core.pendulum",
+      "version": 1,
+      "source": "core",
+      "name": "Pendulum",
+      "description": "Swing smoothly back and forth around the original angle.",
+      "category": "Motion",
+      "tags": ["rotation", "swing", "angle"],
+      "compatibility": {
+        "matchNames": ["ADBE Rotate Z", "ADBE Rotate X", "ADBE Rotate Y"],
+        "valueTypes": ["OneD"]
+      },
+      "parameters": [
+        {
+          "key": "angle",
+          "label": "Swing / degrees",
+          "type": "number",
+          "default": 30,
+          "min": 0,
+          "max": 360,
+          "step": 1
+        },
+        {
+          "key": "frequency",
+          "label": "Cycles / sec",
+          "type": "number",
+          "default": 0.5,
+          "min": 0,
+          "max": 20,
+          "step": 0.1
+        }
+      ],
+      "template": "value + Math.sin((time - inPoint) * Math.PI * 2 * {{frequency}}) * {{angle}};"
+    },
+    {
+      "id": "core.counter",
+      "version": 1,
+      "source": "core",
+      "name": "Counter",
+      "description": "Animate a number from start to end, with optional prefix and decimal places.",
+      "category": "Text",
+      "tags": ["numbers", "count", "statistics"],
+      "compatibility": {
+        "matchNames": ["ADBE Text Document"],
+        "valueTypes": ["TEXT_DOCUMENT"]
+      },
+      "parameters": [
+        {
+          "key": "start",
+          "label": "Start",
+          "type": "number",
+          "default": 0,
+          "min": -1000000,
+          "max": 1000000,
+          "step": 1
+        },
+        {
+          "key": "end",
+          "label": "End",
+          "type": "number",
+          "default": 100,
+          "min": -1000000,
+          "max": 1000000,
+          "step": 1
+        },
+        {
+          "key": "duration",
+          "label": "Duration / sec",
+          "type": "number",
+          "default": 2,
+          "min": 0.01,
+          "max": 3600,
+          "step": 0.1
+        },
+        {
+          "key": "decimals",
+          "label": "Decimal places",
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 6,
+          "step": 1
+        },
+        {
+          "key": "prefix",
+          "label": "Prefix",
+          "type": "text",
+          "default": ""
+        }
+      ],
+      "template": "var n = linear(time, inPoint, inPoint + {{duration}}, {{start}}, {{end}});\n{{prefix}} + n.toFixed(Math.floor({{decimals}}));"
+    },
+    {
+      "id": "core.typewriter",
+      "version": 1,
+      "source": "core",
+      "name": "Typewriter",
+      "description": "Reveal the existing source text at a chosen character rate.",
+      "category": "Text",
+      "tags": ["reveal", "typing", "letters"],
+      "compatibility": {
+        "matchNames": ["ADBE Text Document"],
+        "valueTypes": ["TEXT_DOCUMENT"]
+      },
+      "parameters": [
+        {
+          "key": "speed",
+          "label": "Characters / sec",
+          "type": "number",
+          "default": 12,
+          "min": 1,
+          "max": 200,
+          "step": 1
+        }
+      ],
+      "template": "var count = Math.floor(Math.max(0, time - inPoint) * {{speed}});\nvalue.toString().substr(0, count);"
+    },
+    {
+      "id": "core.cursor",
+      "version": 1,
+      "source": "core",
+      "name": "Blinking Cursor",
+      "description": "Append a blinking cursor to the existing source text.",
+      "category": "Text",
+      "tags": ["typing", "terminal", "caret"],
+      "compatibility": {
+        "matchNames": ["ADBE Text Document"],
+        "valueTypes": ["TEXT_DOCUMENT"]
+      },
+      "parameters": [
+        {
+          "key": "frequency",
+          "label": "Blinks / sec",
+          "type": "number",
+          "default": 1,
+          "min": 0.1,
+          "max": 10,
+          "step": 0.1
+        },
+        {
+          "key": "cursor",
+          "label": "Cursor",
+          "type": "select",
+          "default": "|",
+          "options": ["|", "_", "▌"]
+        },
+        {
+          "key": "enabled",
+          "label": "Show cursor",
+          "type": "boolean",
+          "default": true
+        }
+      ],
+      "template": "var on = Math.floor(Math.max(0, time - inPoint) * {{frequency}} * 2) % 2 === 0;\nvalue.toString() + ({{enabled}} && on ? {{cursor}} : \"\");"
+    },
+    {
+      "id": "core.time-counter",
+      "version": 1,
+      "source": "core",
+      "name": "Time Counter",
+      "description": "Display elapsed layer time in minutes and seconds.",
+      "category": "Text",
+      "tags": ["timer", "clock", "stopwatch"],
+      "compatibility": {
+        "matchNames": ["ADBE Text Document"],
+        "valueTypes": ["TEXT_DOCUMENT"]
+      },
+      "parameters": [],
+      "template": "var seconds = Math.floor(Math.max(0, time - inPoint));\nvar minutes = Math.floor(seconds / 60);\nvar rest = seconds % 60;\nminutes + \":\" + (rest < 10 ? \"0\" : \"\") + rest;"
+    },
+    {
+      "id": "core.posterize",
+      "version": 1,
+      "source": "core",
+      "name": "Stepped Animation",
+      "description": "Sample keyframed animation at a lower frame rate for a stop-motion feel.",
+      "category": "Timing",
+      "tags": ["fps", "stop motion", "hold"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL", "COLOR"]
+      },
+      "parameters": [
+        {
+          "key": "fps",
+          "label": "Frames / sec",
+          "type": "number",
+          "default": 8,
+          "min": 1,
+          "max": 60,
+          "step": 1
+        }
+      ],
+      "template": "posterizeTime({{fps}});\nvalue;"
+    },
+    {
+      "id": "core.delay",
+      "version": 1,
+      "source": "core",
+      "name": "Time Delay",
+      "description": "Play this property’s original animation later by a fixed delay.",
+      "category": "Timing",
+      "tags": ["offset", "lag", "keyframes"],
+      "compatibility": {
+        "valueTypes": ["OneD", "TwoD", "TwoD_SPATIAL", "ThreeD", "ThreeD_SPATIAL", "COLOR"]
+      },
+      "parameters": [
+        {
+          "key": "delay",
+          "label": "Delay / sec",
+          "type": "number",
+          "default": 0.25,
+          "min": -30,
+          "max": 30,
+          "step": 0.05
+        }
+      ],
+      "template": "valueAtTime(time - {{delay}});"
+    }
+  ]
+}

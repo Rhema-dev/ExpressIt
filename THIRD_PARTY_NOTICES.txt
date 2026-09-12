@@ -1,0 +1,19 @@
+ExpressIt v1.0.0
+
+Adobe CSInterface.js v12.0.0
+Copyright 2020 Adobe Systems Incorporated. All Rights Reserved.
+Source: https://github.com/Adobe-CEP/CEP-Resources/blob/master/CEP_12.x/CSInterface.js
+The existing SDK header is retained. Adobe's accompanying SDK license is included
+in licenses/Adobe-CEP-SDK-License.pdf. The SDK is not relicensed by this project.
+
+React and React DOM
+Copyright (c) Meta Platforms, Inc. and affiliates.
+MIT license reproduced in licenses/React-MIT.txt.
+
+Other development dependencies are not shipped in the runtime ZIP; their licenses
+are distributed with the respective npm packages. No third-party expression pack
+was copied into the core library. The build guide supplied the functional brief.
+
+Project-specific code has no open-source license grant yet. The project owner
+should choose a license before describing this repository as open source.
+

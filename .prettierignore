@@ -1,0 +1,11 @@
+node_modules
+.npm-cache
+dist
+release
+artifacts
+test-results
+playwright-report
+public/lib
+host
+licenses
+package-lock.json
