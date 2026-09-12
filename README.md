@@ -245,8 +245,12 @@ src/types/                    Shared data and CEP types
 tests/                        Logic and host simulations; browser workflows
 scripts/                      Packaging, UI test runner, native test generator
 .github/workflows/ci.yml       Build, test, and package artifact
+INSTALL.md                    Customer installation and troubleshooting
+TESTING.md                    Automated and native release test matrix
+RELEASE.md                    Versioning, signing, and submission workflow
+MARKETING.md                  Positioning, launch assets, and campaign plan
 ```
 
-The local BUILD_TUTORIAL.md and INTERVIEW_PREP.md contain the architecture walkthrough and project-specific questions and answers. They are intentionally gitignored; the packager includes them only when present.
+The local BUILD_TUTORIAL.md and INTERVIEW_PREP.md contain the architecture walkthrough and project-specific questions and answers. They are intentionally gitignored and excluded from customer packages.
 
 Third-party licenses are listed in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt). The owner has not selected an open-source license for project-specific code; publishing to GitHub alone does not grant one.

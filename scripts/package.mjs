@@ -1,11 +1,17 @@
-import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { deflateRawSync } from 'node:zlib';
 const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
-const paths = ['CSXS', 'dist', 'host', 'licenses', 'README.md', 'THIRD_PARTY_NOTICES.txt'];
-// Local learning documents are ignored by Git and absent from CI checkouts.
-paths.push(...['BUILD_TUTORIAL.md', 'INTERVIEW_PREP.md'].filter((path) => existsSync(path)));
+const paths = [
+  'CSXS',
+  'dist',
+  'host',
+  'licenses',
+  'INSTALL.md',
+  'README.md',
+  'THIRD_PARTY_NOTICES.txt',
+];
 const files = [];
 function walk(path) {
   const entry = readdirSync(join(path, '..'), { withFileTypes: true }).find(

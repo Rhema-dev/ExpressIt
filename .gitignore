@@ -21,6 +21,9 @@ dist-ssr
 # Local learning documents
 /BUILD_TUTORIAL.md
 /INTERVIEW_PREP.md
+/TESTING.md
+/RELEASE.md
+/MARKETING.md
 
 # Editor directories and files
 .vscode/*
